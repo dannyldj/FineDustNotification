@@ -44,19 +44,10 @@ namespace WeatherNotification.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://www.juso.go.kr/addrlink/addrEngApi.do")]
-        public string enAddressUri {
+        [global::System.Configuration.DefaultSettingValueAttribute("https://ipapi.co/")]
+        public string ipapiUri {
             get {
-                return ((string)(this["enAddressUri"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("devU01TX0FVVEgyMDIxMDQwNzE2NDg1MTExMTAyMDg=")]
-        public string enAddressKey {
-            get {
-                return ((string)(this["enAddressKey"]));
+                return ((string)(this["ipapiUri"]));
             }
         }
     }

@@ -66,10 +66,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Manager\RestManager.cs" />
-    <Compile Include="Model\DustGradeModel.cs" />
-    <Compile Include="Model\DustValueModel.cs" />
-    <Compile Include="Model\MeasureStationModel.cs" />
+    <Compile Include="Model\DustInfoModel.cs" />
     <Compile Include="Model\QParamModel.cs" />
+    <Compile Include="Model\RegionCodeModel.cs" />
     <Compile Include="ViewModel\DustViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -115,6 +114,9 @@
     <Resource Include="Source\bad.png" />
     <Resource Include="Source\good.png" />
     <Resource Include="Source\neutral.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Source\worse.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

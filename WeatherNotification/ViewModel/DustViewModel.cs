@@ -4,15 +4,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WeatherNotification.Manager;
 using WeatherNotification.Model;
-using WeatherNotification.Model.DustGrade;
-using WeatherNotification.Model.DustValue;
-using WeatherNotification.Model.MeasureStation;
 using WeatherNotification.Properties;
 
 namespace WeatherNotification.ViewModel
@@ -21,15 +16,17 @@ namespace WeatherNotification.ViewModel
     {
         RestManager restManager = new RestManager();
 
-        /// <summary>
-        /// 측정소 이름
-        /// </summary>
-        private string _measureStationName;
+        #region props
 
-        public string MeasureStationName
+        /// <summary>
+        /// 지역명
+        /// </summary>
+        private string _regionName;
+
+        public string RegionName
         {
-            get { return _measureStationName; }
-            set { _measureStationName = value; OnPropertyChanged("MeasureStationName"); }
+            get { return _regionName; }
+            set { _regionName = value; OnPropertyChanged("RegionName"); }
         }
 
         /// <summary>
@@ -99,108 +96,76 @@ namespace WeatherNotification.ViewModel
         }
 
         /// <summary>
+        /// 측정소 이름
+        /// </summary>
+        private string _measureStation;
+
+        public string MeasureStation
+        {
+            get { return _measureStation; }
+            set { _measureStation = value; OnPropertyChanged("MeasureStation"); }
+        }
+
+        /// <summary>
         /// 수치 불러오기 커맨드
         /// </summary>
         private DelegateCommand _loadCommand;
         public DelegateCommand LoadCommand =>
             _loadCommand ?? (_loadCommand = new DelegateCommand(OnLoad));
 
-        async void OnLoad()
-        {
-            List<QParamModel> qParams = new List<QParamModel>();
-
-            // 미세먼지 등급 불러오기
-            qParams.Add(new QParamModel { Key = "serviceKey", Value = string.Format(Settings.Default.dustKey) });
-            qParams.Add(new QParamModel { Key = "returnType", Value = "json" });
-            qParams.Add(new QParamModel { Key = "searchDate", Value = DateTime.Today.ToString("yyyy-MM-dd") });
-            DustGradeModel dustGradeModel = await restManager.RestRequest<DustGradeModel>
-                (Settings.Default.dustUri, qParams, "ArpltnInforInqireSvc/getMinuDustFrcstDspth");
-            string dustGrade = dustGradeModel.response.body.items[0].informGrade;
-            string[] dustGradeList = dustGrade.Split(',');
-            foreach (string str in dustGradeList)
-            {
-                if (Regex.IsMatch(str, "대구"))
-                {
-                    Pm10Grade = str.Split(':')[1].Replace(" ", "");
-                }
-            }
-            foreach (Model.DustGrade.Item item in dustGradeModel.response.body.items)
-            {
-                if (item.informCode == "PM25")
-                {
-                    dustGrade = item.informGrade;
-                    dustGradeList = dustGrade.Split(',');
-                    foreach (string str in dustGradeList)
-                    {
-                        if (Regex.IsMatch(str, "대구"))
-                        {
-                            Pm25Grade = str.Split(':')[1].Replace(" ", "");
-                        }
-                    }
-                }
-            }
-
-            // 미세먼지 등급 아이콘 설정
-            if (Pm10Grade == "나쁨")
-            {
-                Pm10ImagePath = "./Source/bad.png";
-            }
-            else if (Pm10Grade == "보통")
-            {
-                Pm10ImagePath = "./Source/neutral.png";
-            }
-            else
-            {
-                Pm10ImagePath = "./Source/good.png";
-            }
-
-            if (Pm25Grade == "나쁨")
-            {
-                Pm25ImagePath = "./Source/bad.png";
-            }
-            else if (Pm25Grade == "보통")
-            {
-                Pm25ImagePath = "./Source/neutral.png";
-            }
-            else
-            {
-                Pm25ImagePath = "./Source/good.png";
-            }
-
-            // 측정소 정보 불러오기
-            qParams.Clear();
-            qParams.Add(new QParamModel { Key = "serviceKey", Value = string.Format(Settings.Default.dustKey) });
-            qParams.Add(new QParamModel { Key = "returnType", Value = "json" });
-            qParams.Add(new QParamModel { Key = "addr", Value = "대구광역시 달성군" });
-            MeasureStationModel measureStationModel = await restManager.RestRequest<MeasureStationModel>
-                (Settings.Default.dustUri, qParams, "MsrstnInfoInqireSvc/getMsrstnList");
-            MeasureStationName = measureStationModel.response.body.items[0].stationName;
-
-            // 미세먼지 수치 불러오기
-            qParams.Clear();
-            qParams.Add(new QParamModel { Key = "serviceKey", Value = string.Format(Settings.Default.dustKey) });
-            qParams.Add(new QParamModel { Key = "returnType", Value = "json" });
-            qParams.Add(new QParamModel { Key = "inqBginDt", Value = DateTime.Today.AddDays(-1).ToString("yyyyMMdd") });
-            qParams.Add(new QParamModel { Key = "inqEndDt", Value = DateTime.Today.AddDays(-1).ToString("yyyyMMdd") });
-            qParams.Add(new QParamModel { Key = "msrstnName", Value = MeasureStationName });
-            DustValueModel dustValueModel = await restManager.RestRequest<DustValueModel>
-                (Settings.Default.dustUri, qParams, "ArpltnStatsSvc/getMsrstnAcctoRDyrg");
-            Pm10Value = dustValueModel.response.body.items[0].pm10Value + "㎍/㎥";
-            Pm25Value = dustValueModel.response.body.items[0].pm25Value + "㎍/㎥";
-        }
+        #endregion
 
         public DustViewModel()
         {
-            //IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-            //foreach (IPAddress ip in host.AddressList)
-            //{
-            //    if (ip.AddressFamily == AddressFamily.InterNetwork)
-            //    {
-            //        localIp = ip.ToString();
-            //    }
-            //}
+            // IP 기반 위치 정보
+            var request = WebRequest.Create(Settings.Default.ipapiUri + "region_code");
+            var response = new System.IO.StreamReader(request.GetResponse().GetResponseStream());
+            RegionCodeModel regionCodeModel = new RegionCodeModel();
+            RegionName = regionCodeModel.RegionName(int.Parse(response.ReadToEnd().ToString()));
 
             OnLoad();
+        }
+
+        async void OnLoad()
+        {
+            List<QParamModel> qParams = new List<QParamModel>();
+            qParams.Add(new QParamModel { Key = "serviceKey", Value = Settings.Default.dustKey });
+            qParams.Add(new QParamModel { Key = "returnType", Value = "json" });
+            qParams.Add(new QParamModel { Key = "sidoName", Value = RegionName });
+            qParams.Add(new QParamModel { Key = "ver", Value = "1.3" });
+            DustInfoModel dustInfoModel = await restManager.RestRequest<DustInfoModel>
+                (Settings.Default.dustUri, qParams, "ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty");
+            var dustInfo = dustInfoModel.response.body.items[0];
+            int pm10Grade = int.Parse(dustInfo.pm10Grade1h);
+            int pm25Grade = int.Parse(dustInfo.pm25Grade1h);
+            SetIcon(pm10Grade, grade => Pm10Grade = grade, value => Pm10ImagePath = value);
+            SetIcon(pm25Grade, grade => Pm25Grade = grade, value => Pm25ImagePath = value);
+            Pm10Value = dustInfo.pm10Value + "㎍/㎥";
+            Pm25Value = dustInfo.pm25Value + "㎍/㎥";
+            MeasureStation = dustInfo.stationName;
+        }
+
+        void SetIcon(int grade, Action<string> dustGrade, Action<string> imagePath)
+        {
+            switch (grade)
+            {
+                case 1:
+                    dustGrade("좋음");
+                    imagePath("./Source/good.png");
+                    break;
+                case 2:
+                    dustGrade("보통");
+                    imagePath("./Source/neutral.png");
+                    break;
+                case 3:
+                    dustGrade("나쁨");
+                    imagePath("./Source/bad.png");
+                    break;
+                case 4:
+                    dustGrade("매우 나쁨");
+                    imagePath("./Source/worse.png");
+                    break;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
