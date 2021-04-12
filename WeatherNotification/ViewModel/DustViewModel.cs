@@ -30,6 +30,17 @@ namespace WeatherNotification.ViewModel
         }
 
         /// <summary>
+        /// 측정소 이름
+        /// </summary>
+        private string _measureStation;
+
+        public string MeasureStation
+        {
+            get { return _measureStation; }
+            set { _measureStation = value; OnPropertyChanged("MeasureStation"); }
+        }
+
+        /// <summary>
         /// 미세먼지 등급
         /// </summary>
         private string _pm10Grade;
@@ -96,14 +107,14 @@ namespace WeatherNotification.ViewModel
         }
 
         /// <summary>
-        /// 측정소 이름
+        /// 측정 시각
         /// </summary>
-        private string _measureStation;
+        private string _measureTime;
 
-        public string MeasureStation
+        public string MeasureTime
         {
-            get { return _measureStation; }
-            set { _measureStation = value; OnPropertyChanged("MeasureStation"); }
+            get { return _measureTime; }
+            set { _measureTime = value; OnPropertyChanged("MeasureTime"); }
         }
 
         /// <summary>
@@ -120,8 +131,7 @@ namespace WeatherNotification.ViewModel
             // IP 기반 위치 정보
             var request = WebRequest.Create(Settings.Default.ipapiUri + "region_code");
             var response = new System.IO.StreamReader(request.GetResponse().GetResponseStream());
-            RegionCodeModel regionCodeModel = new RegionCodeModel();
-            RegionName = regionCodeModel.RegionName(int.Parse(response.ReadToEnd().ToString()));
+            RegionName = RegionCodeModel.RegionName(int.Parse(response.ReadToEnd().ToString()));
 
             OnLoad();
         }
@@ -136,13 +146,18 @@ namespace WeatherNotification.ViewModel
             DustInfoModel dustInfoModel = await restManager.RestRequest<DustInfoModel>
                 (Settings.Default.dustUri, qParams, "ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty");
             var dustInfo = dustInfoModel.response.body.items[0];
+
+            MeasureStation = dustInfo.stationName;
+
             int pm10Grade = int.Parse(dustInfo.pm10Grade1h);
             int pm25Grade = int.Parse(dustInfo.pm25Grade1h);
             SetIcon(pm10Grade, grade => Pm10Grade = grade, value => Pm10ImagePath = value);
             SetIcon(pm25Grade, grade => Pm25Grade = grade, value => Pm25ImagePath = value);
+
             Pm10Value = dustInfo.pm10Value + "㎍/㎥";
             Pm25Value = dustInfo.pm25Value + "㎍/㎥";
-            MeasureStation = dustInfo.stationName;
+
+            MeasureTime = dustInfo.dataTime;
         }
 
         void SetIcon(int grade, Action<string> dustGrade, Action<string> imagePath)

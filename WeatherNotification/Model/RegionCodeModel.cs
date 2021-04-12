@@ -8,7 +8,7 @@ namespace WeatherNotification.Model
 {
     public class RegionCodeModel
     {
-        public string RegionName(int code)
+        public static string RegionName(int code)
         {
             switch (code)
             {

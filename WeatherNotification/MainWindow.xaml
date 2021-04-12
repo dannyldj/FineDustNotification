@@ -61,9 +61,12 @@
             <TextBlock Text="{Binding Pm25Value}" HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <Slider x:Name="sldrOpacity" Grid.Row="2" Grid.ColumnSpan="3" 
-                Width="100" Margin="5" HorizontalAlignment="Stretch" 
-                Minimum="0.2" Maximum="1" ValueChanged="Slider_ValueChanged"
+        <TextBlock Grid.Row="3" Grid.ColumnSpan="3" Margin="7,3,0,0"
+                   Text="{Binding MeasureTime}"/>
+
+        <Slider x:Name="sldrOpacity" Grid.Row="2" Grid.Column="2" 
+                Width="75" Margin="5" HorizontalAlignment="Stretch" 
+                Minimum="0.3" Maximum="1" ValueChanged="Slider_ValueChanged"
                 Cursor="SizeWE" IsMoveToPointEnabled="True"/>
     </Grid>
 </Window>

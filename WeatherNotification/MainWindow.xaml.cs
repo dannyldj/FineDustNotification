@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WeatherNotification.Utils;
 
 namespace WeatherNotification
 {
@@ -39,7 +40,9 @@ namespace WeatherNotification
 
         private void btnClose_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            this.Close();
+            this.Visibility = Visibility.Hidden;
+            TraySystem.window = this;
+            TraySystem.SetTray();
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
