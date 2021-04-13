@@ -55,7 +55,7 @@ namespace WeatherNotification.Utils
         private static void ExitItem_Click(object sender, System.EventArgs e)
         {
             HideTray();
-            App.Current.Shutdown();
+            Environment.Exit(0);
         }
 
         //public static async void ShowNotification(string title, string message, ToolTipIcon icon)

@@ -38,6 +38,14 @@ namespace WeatherNotification
             this.DragMove();
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            this.Visibility = Visibility.Hidden;
+            TraySystem.window = this;
+            TraySystem.SetTray();
+        }
+
         private void btnClose_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.Visibility = Visibility.Hidden;

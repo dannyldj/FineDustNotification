@@ -7,7 +7,7 @@
         xmlns:viewmodel="clr-namespace:WeatherNotification.ViewModel"
         mc:Ignorable="d"
         Title="MainWindow" Height="150" Width="200"
-        WindowStyle="None" ResizeMode="NoResize"
+        WindowStyle="None" ResizeMode="NoResize" Closing="Window_Closing"
         AllowsTransparency="True" Topmost="True">
     <Window.DataContext>
         <viewmodel:DustViewModel/>
