@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Win32.TaskScheduler;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using WeatherNotification.Manager;
 using WeatherNotification.Model;
 using WeatherNotification.Properties;
@@ -129,9 +131,17 @@ namespace WeatherNotification.ViewModel
         public DustViewModel()
         {
             // IP 기반 위치 정보
-            var request = WebRequest.Create(Settings.Default.ipapiUri + "region_code");
-            var response = new System.IO.StreamReader(request.GetResponse().GetResponseStream());
-            RegionName = RegionCodeModel.RegionName(int.Parse(response.ReadToEnd().ToString()));
+            try
+            {
+                var request = WebRequest.Create(Settings.Default.ipapiUri + "region_code");
+                var response = new System.IO.StreamReader(request.GetResponse().GetResponseStream());
+                RegionName = RegionCodeModel.RegionName(int.Parse(response.ReadToEnd().ToString()));
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.ToString(), "Exeption", MessageBoxButton.OK, MessageBoxImage.Information);
+                Environment.Exit(1);
+            }
 
             OnLoad();
         }

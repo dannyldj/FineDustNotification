@@ -34,6 +34,7 @@ namespace WeatherNotification.Manager
             var response = await restClient.ExecuteAsync<T>(request);
 
             var result = JsonConvert.DeserializeObject<T>(response.Content);
+
             return result;
         }
     }
